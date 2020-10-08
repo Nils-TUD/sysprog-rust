@@ -1,0 +1,6 @@
+[package]
+name = "people"
+version = "0.1.0"
+authors = ["Nils Asmussen <nils@os.inf.tu-dresden.de>"]
+
+[dependencies]
