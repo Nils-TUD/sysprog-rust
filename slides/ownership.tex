@@ -1,0 +1,75 @@
+\section{Ownership}
+
+\begin{frame}
+    \frametitle{Different Memory Management Approaches}
+
+    \begin{itemize}
+        \item Many high-level languages use garbage collection to manage memory
+        \begin{itemize}
+            \item Often not acceptable for OSes, bootloaders, VMMs, \dots
+        \end{itemize}
+        \pause
+        \item Many low-level languages let the developer manage memory explicitly
+        \begin{itemize}
+            \item Error prone and the main cause for memory-safety issues
+        \end{itemize}
+        \pause
+        \item Rust uses Ownership
+        \begin{itemize}
+            \item No garbage collection, no manual allocation
+            \item The compiler defines a set of rules and enforces them
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Ownership Rules}
+
+    \begin{enumerate}
+        \item Each value has a variable that's called its \emph{owner}.
+        \item There can only be one owner at a time.
+        \item When the owner goes out of scope, the value will be \emph{dropped}.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Ownership Rules -- Examples}
+
+    \begin{block}{Valid example}
+    \begin{lstlisting}[language=rust]
+    {
+        let mut var = 4;    // mutable variable
+        var += 1;           // we are the owner
+    }   // var is dropped
+    \end{lstlisting}
+    \end{block}
+
+    \begin{block}{Invalid example}
+    \begin{lstlisting}[language=rust]
+    let mut var = 4;
+    let var_ref = &mut var; // mutable reference to modify `var`
+    drop(var);              // explicit drop
+    *var_ref = 5;           // error (use after free)
+    \end{lstlisting}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Ownership Transfer and Borrowing}
+
+    \begin{enumerate}
+        \item The owner of a value can \emph{transfer} the ownership to someone else.
+    \begin{lstlisting}[language=rust]
+let var = 4;        // mutable variable
+foo(var);           // transfer ownership to foo
+fn foo(var: u32) { /* var is dropped */ }
+    \end{lstlisting}
+        \item Others can \emph{borrow} a value from the owner.
+    \begin{lstlisting}[language=rust]
+let mut var = 4;    // mutable variable
+foo(&var);          // let foo borrow var
+var = 5;            // we are the owner again
+fn foo(var: &u32) { /* use var */ }
+    \end{lstlisting}
+    \end{enumerate}
+\end{frame}

@@ -1,0 +1,101 @@
+ \section{Structs and Enums}
+
+\begin{frame}[fragile]
+    \frametitle{More on Structs}
+
+    \begin{columns}
+    \begin{column}{0.5\textwidth}
+
+    \begin{itemize}
+        \item<1-> Struct definition
+        \begin{lstlisting}[language=rust]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+        \end{lstlisting}
+
+        \item<2-> Methods
+        \begin{lstlisting}[language=rust]
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+        \end{lstlisting}
+    \end{itemize}
+
+    \end{column}
+    \begin{column}{0.5\textwidth}
+
+    \begin{itemize}
+        \item<3-> Method with mutable self
+        \begin{lstlisting}[language=rust]
+fn widen(&mut self, amount: u32) {
+    self.width += amount;
+}
+        \end{lstlisting}
+
+        \item<4-> Method that take ownership
+        \begin{lstlisting}[language=rust]
+fn flip(self) -> Rectangle {
+    Rectangle {
+        width: self.height,
+        height: self.width,
+    }
+}
+        \end{lstlisting}
+    \end{itemize}
+
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Enums}
+
+    \begin{columns}
+    \begin{column}{0.5\textwidth}
+
+    \begin{itemize}
+        \item<1-> Simple enumeration (like in C++)
+        \begin{lstlisting}[language=rust]
+enum Animal {
+    Sheep,
+    Cow,
+}
+        \end{lstlisting}
+
+        \item<2-> Enums with data (tagged union)
+        \begin{lstlisting}[language=rust]
+enum Message {
+    Open(String),
+    Read(usize, usize),
+}
+        \end{lstlisting}
+    \end{itemize}
+
+    \end{column}
+    \begin{column}{0.5\textwidth}
+
+    \begin{itemize}
+        \item<3-> Construction
+        \begin{lstlisting}[language=rust]
+Message::Open(String::from("Hello!"));
+Message::Read(0, 1024);
+        \end{lstlisting}
+
+        \item<4-> Matching
+        \begin{lstlisting}[language=rust]
+match msg {
+    Message::Open(filename) => ...,
+    _ => println!("Unsupported"),
+}
+if let Message::Read(pos, num) = msg {
+}
+        \end{lstlisting}
+    \end{itemize}
+
+    \end{column}
+    \end{columns}
+\end{frame}

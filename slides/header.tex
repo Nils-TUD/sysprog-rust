@@ -1,0 +1,168 @@
+\pdfminorversion=7
+\documentclass[aspectratio=169,usenames,dvipsnames]{beamer}
+
+% --- packages ---
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{color}
+\usepackage[export]{adjustbox}
+\usepackage{beamerthemesplit}
+\usepackage{graphicx}
+
+% linux libertine for normal text
+\usepackage{libertine}
+% inconsolate as teletype font
+\usepackage{inconsolata}
+
+\usepackage{relsize}
+\usepackage{subfig}
+
+% --- TikZ ---
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.multipart}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{calc}
+\usetikzlibrary{fadings}
+\usetikzlibrary{fit}
+\usetikzlibrary{intersections}
+\usetikzlibrary{patterns}
+\usetikzlibrary{backgrounds}
+
+% --- Listings ---
+
+\usepackage{listings}
+
+\definecolor{kwColor}{rgb}{0.49,0,0.33}
+\definecolor{identColor}{rgb}{0,0,0}
+\definecolor{commentColor}{rgb}{0,.5,0}
+\definecolor{stringColor}{rgb}{1,0,0}
+
+\lstset{
+  basicstyle=\small\ttfamily,
+  keywordstyle=\color{kwColor}\bfseries,
+  identifierstyle=\color{identColor},
+  commentstyle=\color{commentColor},
+  stringstyle=\color{stringColor},
+  showstringspaces=false,
+  tabsize=2,
+  basewidth={0.5em,0.45em},
+  extendedchars=true,
+}
+
+\lstdefinelanguage{rust}
+{
+  keywordstyle=[1]\color{kwColor}\bfseries,
+  keywordstyle=[2]\color{kwColor},
+  keywords=[1]{struct,impl,pub,fn,Self,self,for,mut,let,if,else,while,loop,enum,match},
+  keywords=[2]{u8,u16,u32,u64,i8,i16,i32,i64,usize,isize,bool,char},
+  morecomment=[l]{//}, % l is for line comment
+  morecomment=[s]{/*}{*/}, % s is for start and end delimiter
+}
+
+% --- beamer template ---
+
+\usetheme{Boadilla}
+\setbeamertemplate{navigation symbols}{}
+
+% no "figure: " prefix
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+
+\title{System Programming -- Day 9}
+\subtitle{Rust}
+\author{Nils Asmussen}
+\date{10/16/2020}
+
+\definecolor{biblue}{RGB}{84,147,200}
+
+% itemize bullets
+\newcommand{\itemizeimage}[1]{
+    \begin{tikzpicture}[baseline={([yshift=-.7ex]current bounding box.center)}]
+    \draw[draw=black!50,fill=#1,inner sep=0] (0,0) circle (.5ex);
+    \end{tikzpicture}%
+    \hspace{-.15em}
+}
+
+\defbeamertemplate{itemize item}{image}{\itemizeimage{biblue}}
+\defbeamertemplate{itemize subitem}{image}{\itemizeimage{biblue}}
+\defbeamertemplate{itemize subsubitem}{image}{\itemizeimage{biblue}}
+
+\setbeamertemplate{itemize item}[image]
+\setbeamertemplate{itemize subitem}[image]
+\setbeamertemplate{itemize subsubitem}[image]
+
+% enumerate bullets
+\newcommand{\enumerateimage}[1]{
+    \begin{tikzpicture}[baseline={([yshift=-.7ex]current bounding box.center)}]
+    \draw[draw=black!50,fill=biblue,text=white,inner sep=0] (0,0) circle (1.2ex) node {#1};
+    \end{tikzpicture}%
+    \hspace{-.15em}
+}
+
+\defbeamertemplate{enumerate item}{image}{\enumerateimage{\insertenumlabel}}
+\defbeamertemplate{enumerate subitem}{image}{\enumerateimage{\insertsubenumlabel}}
+\defbeamertemplate{enumerate subsubitem}{image}{\enumerateimage{\insertsubsubenumlabel}}
+
+\setbeamertemplate{enumerate item}[image]
+\setbeamertemplate{enumerate subitem}[image]
+\setbeamertemplate{enumerate subsubitem}[image]
+
+% TOC
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\defbeamertemplate{section in toc}{square unnumbered}{%
+   \leavevmode\leftskip=1.75ex%
+   \Large\enumerateimage{\inserttocsectionnumber}%
+   \Large\kern1.5ex\color{black}\inserttocsection\par}
+\setbeamertemplate{section in toc}[square unnumbered]
+
+% footer
+\makeatother
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hfill\hbox{%
+    \scriptsize{\insertframenumber{} / \inserttotalframenumber\hspace*{2ex}}
+  }
+  \vskip2ex%
+}
+\makeatletter
+\addtobeamertemplate{frametitle}{}{\vspace{.3cm}}
+
+\def\insertframetitle{}
+
+\makeatletter
+\let\@@magyar@captionfix\relax
+\makeatother
+
+% quotes with author
+\let\oldquote\quote
+\let\endoldquote\endquote
+\renewenvironment{quote}[2][]
+  {\if\relax\detokenize{#1}\relax
+     \def\quoteauthor{#2}%
+   \else
+     \def\quoteauthor{#2~---~#1}%
+   \fi
+   \oldquote}
+  {\par\nobreak\smallskip\hfill(\quoteauthor)%
+   \endoldquote\addvspace{\bigskipamount}}
+
+% --- commands ---
+
+\newcommand{\btVFill}{\vskip0pt plus 1filll}
+
+\begin{document}
+
+\large
+\linespread{1.2}

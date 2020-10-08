@@ -1,0 +1,41 @@
+\section{Getting Started}
+
+\begin{frame}[fragile]
+    \frametitle{Installation}
+
+    \begin{itemize}
+        \item We need rustup (not rustc) to install the nightly version
+        \item Some distributions (e.g., Arch) have a package for rustup
+        \item Otherwise:
+\begin{lstlisting}[language=bash]
+$ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf > rup.sh
+# check if it's safe ;)
+$ sh rup.sh
+\end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Overview}
+
+    \begin{itemize}
+        \item \texttt{rustc} is the Rust compiler; almost never invoked by the user
+        \item \texttt{cargo} is Rust's build system and package manager
+        \begin{itemize}
+            \item Cargo.toml describes what to build and its dependencies
+            \item \texttt{cargo} downloads dependencies and builds everything automatically
+            \item Every library/application is a \emph{crate}
+            \item Crates can be found on \url{https://lib.rs} (or \url{https://crates.io})
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Let's Build Hello World!}
+
+    \begin{lstlisting}[language=bash]
+    $ cargo new hello
+    $ cd hello
+    $ cargo run
+    \end{lstlisting}
+\end{frame}
