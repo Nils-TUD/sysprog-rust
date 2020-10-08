@@ -1,0 +1,7 @@
+[package]
+name = "words"
+version = "0.1.0"
+authors = ["Nils Asmussen <nils@os.inf.tu-dresden.de>"]
+edition = "2021"
+
+[dependencies]
