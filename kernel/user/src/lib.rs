@@ -14,11 +14,21 @@ fn syscall1(no: usize, arg1: usize) -> usize {
     res
 }
 
+fn sem_down() {
+    syscall1(2, 0);
+}
+
+fn sem_up() {
+    syscall1(1, 0);
+}
+
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     let mut no = 1;
     loop {
+        sem_down();
         println!("Hello World {}!", no);
+        sem_up();
         no += 1;
     }
 }

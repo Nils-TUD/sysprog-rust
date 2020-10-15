@@ -1,4 +1,5 @@
 pub mod elf;
+pub mod sem;
 
 use crate::isr;
 use crate::mem;
@@ -22,6 +23,11 @@ pub fn get(id: usize) -> Option<&'static Task> {
     TASKS[id].as_ref()
 }
 
+/// Returns a mutable reference to the `Task` with given id or `None`
+pub fn get_mut(id: usize) -> Option<&'static mut Task> {
+    TASKS.get_mut()[id].as_mut()
+}
+
 /// Returns the current `Task`
 pub fn current() -> &'static mut Task {
     TASKS.get_mut()[*CUR].as_mut().unwrap()
@@ -39,8 +45,11 @@ fn next_task() -> Option<usize> {
     let mut pos = (*CUR + 1) % MAX_TASKS;
     while pos != *CUR {
         // if the task exists, pick it
-        if let Some(_) = get(pos) {
-            return Some(pos);
+        if let Some(t) = get(pos) {
+            // the task needs to be runnable (not blocked)
+            if t.state == TaskState::Runnable {
+                return Some(pos);
+            }
         }
         pos = (pos + 1) % MAX_TASKS;
     }
@@ -68,11 +77,18 @@ struct KernelState {
     eflags: usize,
 }
 
+#[derive(Eq, PartialEq, Copy, Clone)]
+enum TaskState {
+    Runnable,
+    Blocked,
+}
+
 /// A tasks is an entity that can execute code and thus contains a kernel stack, a user stack, and a
 /// `KernelState` to pause and resume its execution.
 #[derive(Copy, Clone)]
 pub struct Task {
     id: usize,
+    state: TaskState,
     kstack: usize,
     ustack: usize,
     entry: usize,
@@ -102,6 +118,7 @@ impl Task {
 
         Self {
             id,
+            state: TaskState::Runnable,
             kstack,
             ustack,
             entry,
@@ -141,5 +158,18 @@ impl Task {
             task_switch(&mut cur.kstate, &self.kstate);
         }
         // we don't return here directly, but only later when we resume the old task
+    }
+
+    pub fn block(&mut self) {
+        assert!(self.id == *CUR);
+        assert!(self.state == TaskState::Runnable);
+        self.state = TaskState::Blocked;
+        schedule();
+    }
+
+    pub fn unblock(&mut self) {
+        assert!(self.state == TaskState::Blocked);
+        self.state = TaskState::Runnable;
+        schedule();
     }
 }
