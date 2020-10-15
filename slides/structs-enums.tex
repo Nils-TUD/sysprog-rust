@@ -1,4 +1,4 @@
- \section{Structs and Enums}
+ \section{Structs, Enums, and Closures}
 
 \begin{frame}[fragile]
     \frametitle{More on Structs}
@@ -98,4 +98,65 @@ if let Message::Read(pos, num) = msg {
 
     \end{column}
     \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Closure Basics}
+
+    \begin{itemize}
+        \item<1-> Closures are anonymous functions that can be stored:
+        \begin{lstlisting}[language=rust]
+let adder = |x| { x += 1 };
+        \end{lstlisting}
+
+        \item<2-> Closures can also capture their environment:
+        \begin{lstlisting}[language=rust]
+fn foo() {
+    let y = 42;
+    let adder = |x| { x += y };
+}
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Closure Representations}
+
+    \begin{enumerate}
+        \item \texttt{Fn}: capture environment by immutable references
+        \item \texttt{FnMut}: capture environment by mutable references
+        \item \texttt{FnOnce}: capture environment by ownership transfer
+    \end{enumerate}
+
+    \pause
+
+    \begin{exampleblock}{Example}
+    \begin{lstlisting}[language=rust]
+fn count<F: Fn(&u32) -> bool>(vec: &[u32], func: F) -> usize {
+    let mut count = 0;
+    for e in vec {
+        if func(e) { count += 1; }
+    }
+    count
+}
+    \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Exercise 2 -- Command Line People Database}
+
+    \begin{itemize}
+        \item Second exercise is in directory ``people''
+        \item Simple command line program that lets the user manage a ``database'' of people
+        \item Fill in the missing parts (parsing, command execution)
+        \item It's okay to use unwrap/panic (we'll add proper error handling later)
+        \item The following building blocks might be helpful:
+        \begin{itemize}
+            \item \texttt{Iterator::collect}
+            \item \texttt{Iterator::find}
+            \item \texttt{Vec::push}
+            \item \texttt{Vec::retain}
+        \end{itemize}
+    \end{itemize}
 \end{frame}

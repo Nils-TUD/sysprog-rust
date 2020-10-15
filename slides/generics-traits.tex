@@ -1,0 +1,237 @@
+ \section{Generics, Traits, and Error Handling}
+
+\begin{frame}[fragile]
+    \frametitle{Basics of Generics}
+
+    \begin{itemize}
+        \item Generics allow to define functions/structs/enums for a variety of concrete types:
+        \begin{lstlisting}[language=rust]
+fn foo<T>(arg: T) { /* ... */ }
+        \end{lstlisting}
+        \item Generics have no runtime overhead due to monomorphization:
+        \begin{lstlisting}[language=rust]
+fn foo<T>(arg: T) { /* ... */ }
+// is compiled to something like:
+fn foo_u32(arg: u32) { /* ... */ }
+fn foo_u64(arg: u64) { /* ... */ }
+        \end{lstlisting}
+        \item Unlike C++, Rust is strict about the requirements for type parameters\\
+        (based on traits, as we will see shortly)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Generic Types}
+
+    \begin{columns}
+    \begin{column}{0.5\textwidth}
+
+    \begin{itemize}
+        \item<1-> Generic function
+        \begin{lstlisting}[language=rust]
+fn head<T>(elems: &Vec<T>) -> &T {
+    &elems[0]
+}
+assert_eq!(*head(&vec![1, 2]), 1);
+        \end{lstlisting}
+
+        \item<2-> Generic struct
+        \begin{lstlisting}[language=rust]
+struct Rectangle<T> {
+    width: T,
+    height: T,
+}
+Rectangle { width: 1.2, height: 4.5 }
+        \end{lstlisting}
+    \end{itemize}
+
+    \end{column}
+    \begin{column}{0.5\textwidth}
+
+    \begin{itemize}
+        \item<3-> Generic enum
+        \begin{lstlisting}[language=rust]
+enum Option<T> {
+    Some(T),
+    None,
+}
+        \end{lstlisting}
+
+        \item<4-> Generic method
+        \begin{lstlisting}[language=rust]
+impl<T: AddAssign> Rectangle<T> {
+    fn widen(&mut self, amount: T) {
+        self.width += amount;
+    }
+}
+        \end{lstlisting}
+    \end{itemize}
+
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Trait Basics}
+
+    \begin{itemize}
+        \item A \emph{trait} defines a behavior that can be implemented by multiple types:
+        \begin{lstlisting}[language=rust]
+trait Shape {
+    fn area(&self) -> u32;
+}
+        \end{lstlisting}
+
+        \pause
+
+        \item Implementing a trait for a type:
+        \begin{lstlisting}[language=rust]
+impl Shape for Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{More on Traits (1)}
+
+    \begin{itemize}
+        \item Using trait bounds:
+        \begin{lstlisting}[language=rust]
+fn sum<T: AddAssign + Copy + Default>(nums: &Vec<T>) -> T {
+    let mut sum = T::default();
+    for n in nums { sum += *n; }
+    sum
+}
+        \end{lstlisting}
+
+        \pause
+
+        \item Static vs. dynamic dispatch:
+        \begin{lstlisting}[language=rust]
+// one function for each type
+fn static_dispatch<T: Shape>(sh: &T) { }
+fn static_dispatch(sh: &impl Shape) { } // syntactic sugar
+// one function for all types, dispatched at runtime
+fn dynamic_dispatch(sh: &dyn Shape) { }
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{More on Traits (2)}
+
+    \begin{itemize}
+        \item Derive attribute:
+        \begin{lstlisting}[language=rust]
+#[derive(Debug, Copy, Clone)]
+struct Point {
+    x: u32,
+    y: u32,
+}
+        \end{lstlisting}
+
+        \pause
+
+        \begin{lstlisting}[language=rust]
+let p1 = Point { x: 0, y: 16 };
+let p2 = p1;              // copied
+println!("p = {:?}", p1); // prints "p = Point { x: 0, y: 16 }"
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Error Handling}
+
+    \begin{itemize}
+        \item Unrecoverable errors with \texttt{panic!}:
+        \begin{itemize}
+            \item Sometimes the best you can do
+            \item Can perform stack unwinding or not (set panic=abort)
+            \item Provides a backtrace to the user
+        \end{itemize}
+
+        \pause
+
+        \item Recoverable errors with \texttt{Result}:
+        \begin{lstlisting}[language=rust]
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{How to Handle Errors?}
+
+    \begin{lstlisting}[language=rust]
+    fn read_file(path: &str) -> Result<String, io::Error> {
+        let mut file = std::fs::File::open(path)?;
+        let mut s = String::new();
+        file.read_to_string(&mut s)?;
+        Ok(s)
+    }
+    let content = read_file("my_file.txt").expect("Unable to read file");
+    \end{lstlisting}
+
+    \pause
+
+    \begin{lstlisting}[language=rust]
+    let mut file = std::fs::File::open(path)?;
+    // is equivalent to:
+    let mut file = match std::fs::File::open(path) {
+        Ok(file) => file,
+        Err(e) => return Err(e),
+    };
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Option Instead of Nullpointers}
+
+    \begin{itemize}
+        \item Similar to \texttt{Result} for errors, Rust uses \texttt{Option} for optional values:
+        \begin{lstlisting}[language=rust]
+enum Option<T> {
+    Some(T),
+    None,
+}
+        \end{lstlisting}
+
+    \pause
+
+        \item Important methods on \texttt{Result} and \texttt{Option}
+        \begin{itemize}
+            \item \texttt{unwrap}: panic if \texttt{None/Err}
+            \item \texttt{expect}: panic with message if \texttt{None/Err}
+            \item \texttt{*\_or\_else}: transformation
+        \end{itemize}
+
+    \pause
+
+        \item More at \url{https://doc.rust-lang.org/stable}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Exercise 3 -- Proper Error Handling}
+
+    \begin{itemize}
+        \item Let's add proper error handling to our people ``database''
+        \item Use \texttt{Result} and \texttt{Option} where appropriate
+        \item Get rid of all panics/unwraps
+        \item Hints:
+        \begin{itemize}
+            \item Introduce your own error enum
+            \item Attach \texttt{\#[derive(Debug)]} to your error enum
+            \item Implement \texttt{From<std::num::ParseIntError>} for your enum
+            \item Implement \texttt{Display} for Person
+        \end{itemize}
+    \end{itemize}
+\end{frame}

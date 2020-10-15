@@ -1,0 +1,91 @@
+\section{Advanced Features}
+
+\begin{frame}[fragile]
+    \frametitle{Unsafe}
+
+    \begin{itemize}
+        \item Rust allows you to enable additional features via \texttt{unsafe}
+        \item Tells the compiler that you know what you're doing
+        \item Does \emph{not} turn off safety checks, but allows you additionally to:
+        \begin{itemize}
+            \item Dereference raw pointers
+            \item Call unsafe functions
+            \item (Some more that are less important)
+        \end{itemize}
+        \item Unsafe code is typically used to build safe abstractions (\texttt{Vec}, \texttt{String}, \dots)
+        \item Example:
+        \begin{lstlisting}[language=rust]
+let mut_ptr = 0xB8000 as *mut u32;         // VGA frame buffer
+let const_ptr = 0xDEAD_BEEF as *const u32;
+unsafe { *mut_ptr = *const_ptr; }
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Interfacing with Other Languages}
+
+    \begin{itemize}
+        \item Rust can interface with other languages through the foreign function interface (FFI)
+        \item Allows to call C functions from Rust:
+        \begin{lstlisting}[language=rust]
+extern "C" {
+    fn abs(input: i32) -> i32;
+}
+unsafe { abs(-2) };
+        \end{lstlisting}
+
+        \pause
+
+        \item And to export Rust functions to C:
+        \begin{lstlisting}[language=rust]
+#[no_mangle]
+extern "C" fn rust_double(arg: u64) -> u64 {
+    arg * 2
+}
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Interior Mutability}
+
+    \begin{itemize}
+        \item Design pattern that allows to bypass the ownership model
+        \item Used by \texttt{Cell}, \texttt{RefCell}, \texttt{Mutex} and others
+
+        \pause
+
+        \item For example (from the kernel you'll work on):
+        \begin{lstlisting}[language=rust]
+pub struct StaticCell<T: Sized> { inner: UnsafeCell<T> }
+
+impl<T: Sized> StaticCell<T> {
+    pub const fn new(val: T) -> Self {
+        StaticCell { inner: UnsafeCell::new(val) }
+    }
+    pub fn get_mut(&self) -> &mut T {
+        unsafe { &mut *self.inner.get() }
+    }
+}
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Exercise 4 -- Semaphores}
+
+    \begin{itemize}
+        \item Last exercise is in directory ``kernel''
+        \item Simple kernel that supports exactly two programs and runs in physical memory
+        \item The program is instantiated two times and performs prints in a loop
+        \item The prints currently mix occasionally; use semaphores to prevent it
+        \item You need:
+        \begin{itemize}
+            \item Add block support for tasks (preemptive scheduling already implemented)
+            \item Add the Semaphore itself (with up and down based on blockable tasks)
+            \item Add up/down syscalls to the kernel
+            \item Use the syscalls in the user program
+        \end{itemize}
+    \end{itemize}
+\end{frame}

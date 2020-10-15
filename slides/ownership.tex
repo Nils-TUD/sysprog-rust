@@ -44,6 +44,8 @@
     \end{lstlisting}
     \end{block}
 
+    \pause
+
     \begin{block}{Invalid example}
     \begin{lstlisting}[language=rust]
     let mut var = 4;
@@ -60,16 +62,19 @@
     \begin{enumerate}
         \item The owner of a value can \emph{transfer} the ownership to someone else.
     \begin{lstlisting}[language=rust]
-let var = 4;        // mutable variable
-foo(var);           // transfer ownership to foo
-fn foo(var: u32) { /* var is dropped */ }
+let var = String::from("hello"); // heap-allocated string
+fn foo(name: String) { /* name is dropped */ }
+foo(var);                        // transfer ownership to foo
     \end{lstlisting}
+
+    \pause
+
         \item Others can \emph{borrow} a value from the owner.
     \begin{lstlisting}[language=rust]
-let mut var = 4;    // mutable variable
-foo(&var);          // let foo borrow var
-var = 5;            // we are the owner again
-fn foo(var: &u32) { /* use var */ }
+let mut var = String::from("hello");    // mutable String
+fn foo(name: &String) { /* use name */ }
+foo(&var);                              // let foo borrow var
+var.push(' ');                          // we are the owner again
     \end{lstlisting}
     \end{enumerate}
 \end{frame}
