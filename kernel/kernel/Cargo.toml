@@ -1,0 +1,13 @@
+[package]
+name = "kernel"
+version = "0.1.0"
+authors = ["Nils Asmussen <nils@os.inf.tu-dresden.de>"]
+edition = "2018"
+
+[lib]
+name = "kernel"
+crate-type = ["staticlib"]
+
+[dependencies]
+rlibc = "1.0.0"
+int-enum = { version = "0.4.0", default-features = false, features = [] }

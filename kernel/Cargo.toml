@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "kernel",
+    "user",
+]
+
+[profile.release]
+panic = 'abort'
+lto = true
+
+[profile.dev]
+panic = 'abort'
