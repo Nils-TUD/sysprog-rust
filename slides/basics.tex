@@ -108,13 +108,27 @@ for i in 0..10 { }
 \end{frame}
 
 \begin{frame}[fragile]
+    \frametitle{Functions}
+
+    \begin{lstlisting}[language=rust]
+pub fn func_without_return_val(arg: u32) {
+    if arg > 0 {
+        return;
+    }
+    // do something
+}
+
+pub fn func_with_return_val(arg1: usize, arg2: usize) -> usize {
+    // last expression is the return value
+    arg1 + arg2
+}
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
     \frametitle{Exercise 1 -- String Operations}
 
     \begin{itemize}
-        \item Clone the repository:
-    \begin{lstlisting}[language=bash]
-$ git clone https://...
-    \end{lstlisting}
         \item First exercise is in directory ``words''
         \item Fill in the implementation of the functions
         \item Use the existing tests to verify your implementation:

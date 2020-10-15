@@ -1,0 +1,111 @@
+\section{Unsafe, FFI, Interior Mutability}
+
+\begin{frame}[fragile]
+    \frametitle{Unsafe}
+
+    \begin{itemize}
+        \item Rust allows you to enable additional features via \texttt{unsafe}
+        \item Tells the compiler that you know what you're doing
+        \item Does \emph{not} turn off safety checks, but allows you additionally to:
+        \begin{itemize}
+            \item Dereference raw pointers
+            \item Call unsafe functions
+        \end{itemize}
+        \item Unsafe code is typically used to build safe abstractions (\texttt{Vec}, \texttt{String}, \dots)
+        \item Example:
+        \begin{lstlisting}[language=rust]
+let mut_ptr = 0xB8000 as *mut u32;         // VGA frame buffer
+let const_ptr = 0xDEAD_BEEF as *const u32;
+unsafe { *mut_ptr = *const_ptr; }
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{FFI: Interfacing with Other Languages}
+
+    \begin{itemize}
+        \item Rust can interface with other languages through the foreign function interface (FFI)
+        \item Allows to call C functions from Rust:
+        \begin{lstlisting}[language=rust]
+extern "C" {
+    fn abs(input: i32) -> i32;
+}
+unsafe { abs(-2) };
+        \end{lstlisting}
+
+        \pause
+
+        \item And to export Rust functions to C:
+        \begin{lstlisting}[language=rust]
+#[no_mangle]
+extern "C" fn rust_double(arg: u64) -> u64 {
+    arg * 2
+}
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Interior Mutability}
+
+    \begin{itemize}
+        \item The ownership model is sometimes too restrictive
+        \item Interior mutability allows to mutate data with an immutable reference
+        \pause
+        \item How can that be safe?
+        \begin{itemize}
+            \item \texttt{Cell}: no reference to internal data; data is copied
+            \item \texttt{RefCell}: track references at runtime
+            \item \texttt{Mutex}: track references at runtime in a thread-safe way
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Interior Mutability: \texttt{UnsafeCell}}
+
+    \begin{lstlisting}[language=rust]
+    // simplified implementation
+    pub struct UnsafeCell<T> { value: T }
+
+    impl<T> UnsafeCell<T> {
+        pub unsafe fn get_mut(&self) -> &mut T {
+            let mut_ptr = &self.value as *const T as *mut T;
+            unsafe { &mut *mut_ptr }
+        }
+    }
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Interior Mutability: \texttt{RefCell}}
+
+    \begin{itemize}
+        \item Implemented based on \texttt{UnsafeCell} and \texttt{Cell}
+        \item Does not hand out any references
+        \item Instead hands out the types \texttt{Ref} and \texttt{RefMut}:
+        \begin{itemize}
+            \item \texttt{pub fn borrow(\&self) -> Ref<T>}
+            \item \texttt{pub fn borrow\_mut(\&self) -> RefMut<T>}
+        \end{itemize}
+        \item \texttt{Ref}/\texttt{RefMut} hold a reference and provide access to the data
+        \item \texttt{RefCell} is used in the small kernel for global variables (see \texttt{StaticRefCell})
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Exercise 4 -- Semaphores}
+
+    \begin{itemize}
+        \item Last exercise is in directory ``kernel''
+        \item Simple kernel that supports exactly two programs and runs in physical memory
+        \item The program is instantiated two times and performs prints in a loop
+        \item The prints currently mix occasionally; use semaphores to prevent it
+        \item You need:
+        \begin{itemize}
+            \item Add the Semaphore implementation (with up and down based on existing task module)
+            \item Use the syscalls in the user program
+        \end{itemize}
+    \end{itemize}
+\end{frame}

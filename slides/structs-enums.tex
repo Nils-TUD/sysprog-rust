@@ -1,4 +1,4 @@
- \section{Structs and Enums}
+ \section{Structs, Enums, and Closures}
 
 \begin{frame}[fragile]
     \frametitle{More on Structs}
@@ -7,7 +7,7 @@
     \begin{column}{0.5\textwidth}
 
     \begin{itemize}
-        \item<1-> Struct definition
+        \item<1-> Struct definitions
         \begin{lstlisting}[language=rust]
 struct Rectangle {
     width: u32,
@@ -29,14 +29,14 @@ impl Rectangle {
     \begin{column}{0.5\textwidth}
 
     \begin{itemize}
-        \item<3-> Method with mutable self
+        \item<3-> Methods with mutable self
         \begin{lstlisting}[language=rust]
 fn widen(&mut self, amount: u32) {
     self.width += amount;
 }
         \end{lstlisting}
 
-        \item<4-> Method that take ownership
+        \item<4-> Methods that take ownership
         \begin{lstlisting}[language=rust]
 fn flip(self) -> Rectangle {
     Rectangle {
@@ -98,4 +98,69 @@ if let Message::Read(pos, num) = msg {
 
     \end{column}
     \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Closure Basics}
+
+    \begin{itemize}
+        \item<1-> Closures are anonymous functions that can be stored:
+        \begin{lstlisting}[language=rust]
+let adder = |x| { x += 1 };
+        \end{lstlisting}
+
+        \item<2-> Closures can also capture their environment:
+        \begin{lstlisting}[language=rust]
+fn foo() {
+    let y = 42;
+    let adder = |x| { x += y };
+}
+        \end{lstlisting}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Closure Representations}
+
+    \begin{enumerate}
+        \item \texttt{Fn}: capture environment by immutable references
+        \item \texttt{FnMut}: capture environment by mutable references
+        \item \texttt{FnOnce}: capture environment by ownership transfer
+    \end{enumerate}
+
+    \pause
+
+    \begin{exampleblock}{Example}
+    \begin{lstlisting}[language=rust]
+fn count<F: Fn(&u32) -> bool>(elems: &[u32], func: F) -> usize {
+    let mut count = 0;
+    for e in elems {
+        if func(e) { count += 1; }
+    }
+    count
+}
+    \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Exercise 2 -- Command Line Book Collection}
+
+    \begin{itemize}
+        \item Second exercise is in directory ``books''
+        \item Simple command line program that lets the user manage a collection of books
+        \item Fill in the missing parts (parsing, command execution)
+        \item For simplicity:
+        \begin{itemize}
+            \item It's okay to only support single-word book titles
+            \item If you see \texttt{Option}/\texttt{Result}: use unwrap/panic (we'll add proper error handling later)
+        \end{itemize}
+        \item The following building blocks might be helpful:
+        \begin{itemize}
+            \item \texttt{Iterator::collect}
+            \item \texttt{Iterator::find}
+            \item \texttt{Vec::push}
+            \item \texttt{Vec::retain}
+        \end{itemize}
+    \end{itemize}
 \end{frame}

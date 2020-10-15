@@ -58,10 +58,12 @@
 {
   keywordstyle=[1]\color{kwColor}\bfseries,
   keywordstyle=[2]\color{kwColor},
-  keywords=[1]{struct,impl,pub,fn,Self,self,for,mut,let,if,else,while,loop,enum,match},
+  keywords=[1]{struct,impl,pub,fn,Self,self,for,mut,const,let,if,else,while,loop,enum,match,trait,dyn,as,unsafe,extern,return,where},
   keywords=[2]{u8,u16,u32,u64,i8,i16,i32,i64,usize,isize,bool,char},
   morecomment=[l]{//}, % l is for line comment
   morecomment=[s]{/*}{*/}, % s is for start and end delimiter
+  morestring=*[d]{"},
+  morestring=[b]',
 }
 
 % --- beamer template ---
@@ -72,10 +74,10 @@
 % no "figure: " prefix
 \setbeamertemplate{caption}{\raggedright\insertcaption\par}
 
-\title{System Programming -- Day 9}
+\title{System Programming -- Day 4}
 \subtitle{Rust}
 \author{Nils Asmussen}
-\date{10/16/2020}
+\date{09/27/2022}
 
 \definecolor{biblue}{RGB}{84,147,200}
 
