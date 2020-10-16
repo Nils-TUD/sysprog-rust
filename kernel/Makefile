@@ -6,6 +6,7 @@ USER1 = $(BUILD_DIR)/user1
 USER2 = $(BUILD_DIR)/user2
 TARGET = i686-unknown-kernel
 
+CC = gcc
 LINKFLAGS = -m32 -static -ffreestanding -nostdlib -Wall -Wextra \
 	-L $(BUILD_DIR)/$(TARGET)/$(MODE) -Wl,--build-id=none -Wl,-T,linker.ld
 
@@ -19,13 +20,13 @@ QEMU_FLAGS = -serial stdio -d cpu_reset,pcall,guest_errors -D debug.txt
 all: $(KERNEL) $(USER1) $(USER2)
 
 $(KERNEL):	cargo
-	gcc $(LINKFLAGS) -Wl,--section-start=.text=0x100000 -o $@ -l kernel
+	$(CC) $(LINKFLAGS) -Wl,--section-start=.text=0x100000 -o $@ -l kernel
 
 $(USER1):	cargo
-	gcc $(LINKFLAGS) -Wl,--section-start=.text=0x800000 -o $@ -l testapp
+	$(CC) $(LINKFLAGS) -Wl,--section-start=.text=0x800000 -o $@ -l testapp
 
 $(USER2):	cargo
-	gcc $(LINKFLAGS) -Wl,--section-start=.text=0x900000 -o $@ -l testapp
+	$(CC) $(LINKFLAGS) -Wl,--section-start=.text=0x900000 -o $@ -l testapp
 
 dis: $(KERNEL)
 	objdump -SC $(KERNEL) | less
@@ -40,5 +41,5 @@ dbg: $(KERNEL) $(USER1) $(USER2)
 	./debug.sh $(KERNEL) $(USER1) $(USER2) "$(QEMU_FLAGS)"
 
 cargo:
-	RUST_TARGET_PATH=`readlink -f .` CARGO_TARGET_DIR=$(BUILD_DIR) \
+	RUST_TARGET_PATH=`pwd -P` CARGO_TARGET_DIR=$(BUILD_DIR) \
 		cargo build $(CARGO_FLAGS)
