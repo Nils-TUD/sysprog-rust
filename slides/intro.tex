@@ -38,11 +38,38 @@
 
     \pause
 
+    \btVFill
     \begin{tikzpicture}
         \draw (0, 0) node[inner sep=0] {\includegraphics[width=\textwidth]{img/microsoft-memory-safety-trends.png}};
         \pause
-        \draw (0, 0) node[fill=white,text=red,rotate=45] {\huge{We are using the wrong tools!}};
+        \draw (0, 0) node[fill=white,text=red,rotate=30] {\huge{We are using the wrong tools!}};
     \end{tikzpicture}
+
+    \btVFill
+    {\scriptsize Source: \url{https://msrc.microsoft.com/blog/2019/07/a-proactive-approach-to-more-secure-code/}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{It works!}
+
+    \btVFill
+    \only<1->{
+        \begin{minipage}{.49\textwidth}
+        \begin{figure}
+            \includegraphics[width=\textwidth]{img/android-memory-unsafe.png}
+        \end{figure}
+        \end{minipage}%
+    }%
+    \only<2->{
+        \begin{minipage}{.49\textwidth}
+        \begin{figure}
+            \includegraphics[width=\textwidth]{img/android-languages.png}
+        \end{figure}
+        \end{minipage}
+    }
+
+    \btVFill
+    {\scriptsize Source: \url{https://security.googleblog.com/2022/12/memory-safe-languages-in-android-13.html?m=1}}
 \end{frame}
 
 \begin{frame}
