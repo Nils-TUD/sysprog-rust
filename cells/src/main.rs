@@ -1,30 +1,34 @@
+use std::cell::{Cell, Ref, RefCell};
 use std::fmt;
 use std::rc::Rc;
 
 struct Book {
-    title: String,
-    year: u64,
+    title: RefCell<String>,
+    year: Cell<u64>,
 }
 
 impl Book {
     fn new(title: String, year: u64) -> Self {
-        Self { title, year }
+        Self {
+            title: RefCell::from(title),
+            year: Cell::from(year),
+        }
     }
 
-    fn title(&self) -> &String {
-        &self.title
+    fn title(&self) -> Ref<'_, String> {
+        self.title.borrow()
     }
 
     fn year(&self) -> u64 {
-        self.year
+        self.year.get()
     }
 
     fn set_title(&self, title: String) {
-        // TODO
+        self.title.replace(title);
     }
 
     fn set_year(&self, year: u64) {
-        // TODO
+        self.year.set(year);
     }
 }
 
