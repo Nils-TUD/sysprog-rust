@@ -83,29 +83,27 @@ extern "C" fn rust_double(arg: u64) -> u64 {
 
     \begin{itemize}
         \item Implemented based on \texttt{UnsafeCell} and \texttt{Cell}
-        \item Does not hand out any references
+        \item Does not hand out ``plain'' references
         \item Instead hands out the types \texttt{Ref} and \texttt{RefMut}:
         \begin{itemize}
             \item \texttt{pub fn borrow(\&self) -> Ref<T>}
             \item \texttt{pub fn borrow\_mut(\&self) -> RefMut<T>}
         \end{itemize}
         \item \texttt{Ref}/\texttt{RefMut} hold a reference and provide access to the data
-        \item \texttt{RefCell} is used in the small kernel for global variables (see \texttt{StaticRefCell})
     \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Exercise 4 -- Semaphores}
+    \frametitle{Exercise 4 -- Cells}
 
     \begin{itemize}
-        \item Last exercise is in directory ``kernel''
-        \item Simple kernel that supports exactly two programs and runs in physical memory
-        \item The program is instantiated two times and performs prints in a loop
-        \item The prints currently mix occasionally; use semaphores to prevent it
-        \item You need:
+        \item Final exercise is in directory ``cells''
+        \item Book collection that is shared (stored in \texttt{Rc})
+        \item Attributes of books should be changable
+        \item You need to:
         \begin{itemize}
-            \item Add the Semaphore implementation (with up and down based on existing task module)
-            \item Use the syscalls in the user program
+            \item Implement the \texttt{set\_*} methods
+            \item Use \texttt{Cell} and \texttt{RefCell} as appropriate
         \end{itemize}
     \end{itemize}
 \end{frame}
