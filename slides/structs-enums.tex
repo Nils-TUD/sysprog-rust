@@ -101,7 +101,7 @@ if let Message::Read(pos, num) = msg {
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Closure Basics}
+    \frametitle{Closures: Basics}
 
     \begin{itemize}
         \item<1-> Closures are anonymous functions that can be stored:
@@ -119,28 +119,53 @@ fn foo() {
     \end{itemize}
 \end{frame}
 
+\newcommand{\closgood}{{\color{green}\checkmark}}
+\newcommand{\closbad}{{\color{red}x}}
+
 \begin{frame}[fragile]
-    \frametitle{Closure Representations}
+    \frametitle{Closures: Contract between Implementer and Consumer}
 
-    \begin{enumerate}
-        \item \texttt{Fn}: capture environment by immutable references
-        \item \texttt{FnMut}: capture environment by mutable references
-        \item \texttt{FnOnce}: capture environment by ownership transfer
-    \end{enumerate}
+    \begin{overlayarea}{\linewidth}{10cm}
 
-    \pause
+    \onslide<1->{
+    \begin{center}
+    \begin{tabular}{ p{1.5cm}|p{4cm}|p{8cm} }
+     & \textbf{Implementer} & \textbf{Consumer} \\
+     \hline
+     \texttt{FnOnce} & Move out \closgood{}; Mutate \closgood{} & Can call only once \\
+     \hline
+     \texttt{FnMut} & Move out \closbad{}; Mutate \closgood{} & Can call multiple times with unique access \\
+     \hline
+     \texttt{Fn} & Move out \closbad{}; Mutate \closbad{} & Can call multiple times, no restrictions \\
+    \end{tabular}
+    \end{center}
+    }
 
+    \begin{onlyenv}<2>
     \begin{exampleblock}{Example}
     \begin{lstlisting}[language=rust]
-fn count<F: Fn(&u32) -> bool>(elems: &[u32], func: F) -> usize {
+fn count<F: ...>(elems: &[u32], func: F) -> usize {
     let mut count = 0;
-    for e in elems {
-        if func(e) { count += 1; }
-    }
+    for e in elems { if func(e) { count += 1; } }
     count
 }
     \end{lstlisting}
     \end{exampleblock}
+    \end{onlyenv}
+
+    \begin{onlyenv}<3>
+    \begin{exampleblock}{Example}
+    \begin{lstlisting}[language=rust]
+fn count<F: FnMut(&u32) -> bool>(elems: &[u32], mut func: F) -> usize {
+    let mut count = 0;
+    for e in elems { if func(e) { count += 1; } }
+    count
+}
+    \end{lstlisting}
+    \end{exampleblock}
+    \end{onlyenv}
+
+    \end{overlayarea}
 \end{frame}
 
 \begin{frame}[fragile]
