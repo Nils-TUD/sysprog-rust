@@ -15,7 +15,7 @@ fn foo<T>(arg: T) { /* ... */ }
 fn foo_u32(arg: u32) { /* ... */ }
 fn foo_u64(arg: u64) { /* ... */ }
         \end{lstlisting}
-        \item Unlike C++, Rust is strict about the requirements for type parameters\\
+        \item Rust is strict about the requirements for type parameters\\
         (based on traits, as we will see shortly)
     \end{itemize}
 \end{frame}
@@ -267,8 +267,8 @@ enum Option<T> {
 
     \begin{itemize}
         \item Let's add proper error handling to our books collection
-        \item Use \texttt{Result} and \texttt{Option} where appropriate
         \item Get rid of all panics/unwraps
+        \item Use \texttt{Result} and \texttt{Option} where appropriate
         \item Hints:
         \begin{itemize}
             \item Introduce your own error enum
