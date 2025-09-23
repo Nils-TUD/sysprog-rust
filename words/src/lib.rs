@@ -1,14 +1,27 @@
 /// Returns the number of upper case letters in `word`
 pub fn count_upper(word: &str) -> usize {
-    // TODO
-    0
+    word.chars().filter(|c| c.is_uppercase()).count()
+    // let mut count = 0;
+    // for c in word.chars() {
+    //     if c.is_uppercase() {
+    //         count += 1;
+    //     }
+    // }
+    // count
 }
 
 /// Returns a tuple with the number of words in `text` that contain upper case letters and the total
 /// number of upper case letters
 pub fn count_words_upper(text: &str) -> (usize, usize) {
-    // TODO
-    (0, 0)
+    let mut res = (0, 0);
+    for word in text.split_whitespace() {
+        let upper = count_upper(word);
+        if upper > 0 {
+            res.0 += 1;
+        }
+        res.1 += upper;
+    }
+    res
 }
 
 #[test]
