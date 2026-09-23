@@ -1,9 +1,20 @@
+use std::fmt::Display;
 use std::io;
 use std::io::Write;
 
 struct Book {
     title: String,
-    year: u32,
+    year: Option<u32>,
+}
+
+impl Display for Book {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.title)?;
+        if let Some(year) = self.year {
+            write!(f, " ({})", year)?;
+        }
+        Ok(())
+    }
 }
 
 enum Command {
@@ -15,27 +26,68 @@ enum Command {
     Quit,
 }
 
-fn get_cmd() -> Command {
+#[derive(Debug)]
+enum Error {
+    UnknownCommand,
+    MissingArgument,
+    IoError,
+    ParseError,
+    BookExists,
+    BookNotFound,
+}
+
+impl From<std::io::Error> for Error {
+    fn from(_value: std::io::Error) -> Self {
+        Self::IoError
+    }
+}
+
+impl From<std::num::ParseIntError> for Error {
+    fn from(_value: std::num::ParseIntError) -> Self {
+        Self::ParseError
+    }
+}
+
+fn get_cmd() -> Result<Command, Error> {
     // print prompt (ignore errors)
     print!("> ");
     io::stdout().flush().ok();
 
     let mut command = String::new();
-    io::stdin().read_line(&mut command).unwrap();
+    io::stdin().read_line(&mut command)?;
 
     let args = command.split_whitespace().collect::<Vec<_>>();
+    if args.is_empty() {
+        return Err(Error::MissingArgument);
+    }
+
     match args[0] {
-        "add" => Command::Add(args[1].to_string()),
-        "year" => Command::Year(args[1].to_string(), args[2].parse().unwrap()),
-        "rem" => Command::Rem(args[1].to_string()),
-        "show" => Command::Show,
-        "help" => Command::Help,
-        "quit" => Command::Quit,
-        _ => panic!("Unsupported command: {}", args[0]),
+        "add" => {
+            if args.len() < 2 {
+                return Err(Error::MissingArgument);
+            }
+            Ok(Command::Add(args[1].to_string()))
+        },
+        "year" => {
+            if args.len() < 3 {
+                return Err(Error::MissingArgument);
+            }
+            Ok(Command::Year(args[1].to_string(), args[2].parse()?))
+        }
+        "rem" => {
+            if args.len() < 2 {
+                return Err(Error::MissingArgument);
+            }
+            Ok(Command::Rem(args[1].to_string()))
+        }
+        "show" => Ok(Command::Show),
+        "help" => Ok(Command::Help),
+        "quit" => Ok(Command::Quit),
+        _ => Err(Error::UnknownCommand),
     }
 }
 
-fn cmd_help() {
+fn cmd_help() -> Result<(), Error> {
     println!("The following commands are available:");
     println!("  add <title>");
     println!("  year <title> <year>");
@@ -43,28 +95,42 @@ fn cmd_help() {
     println!("  show");
     println!("  help");
     println!("  quit");
+    Ok(())
 }
 
-fn cmd_add(books: &mut Vec<Book>, title: String) {
+fn cmd_add(books: &mut Vec<Book>, title: String) -> Result<(), Error> {
+    if books.iter().find(|b| b.title == title).is_some() {
+        return Err(Error::BookExists);
+    }
+
     books.push(Book {
         title,
-        year: 0,
+        year: None,
     });
+    Ok(())
 }
 
-fn cmd_year(books: &mut Vec<Book>, title: String, year: u32) {
-    let book = books.iter_mut().find(|b| b.title == title).unwrap();
-    book.year = year;
+fn cmd_year(books: &mut [Book], title: String, year: u32) -> Result<(), Error> {
+    let Some(book) = books.iter_mut().find(|b| b.title == title) else {
+        return Err(Error::BookNotFound);
+    };
+    book.year = Some(year);
+    Ok(())
 }
 
-fn cmd_rem(books: &mut Vec<Book>, title: String) {
-    books.retain(|b| b.title != title);
-}
-
-fn cmd_show(books: &Vec<Book>) {
-    for b in books {
-        println!("{} ({})", b.title, b.year);
+fn cmd_rem(books: &mut Vec<Book>, title: String) -> Result<(), Error> {
+    if books.iter().find(|b| b.title == title).is_none() {
+        return Err(Error::BookNotFound);
     }
+    books.retain(|b| b.title != title);
+    Ok(())
+}
+
+fn cmd_show(books: &Vec<Book>) -> Result<(), Error> {
+    for b in books {
+        println!("{}", b);
+    }
+    Ok(())
 }
 
 fn main() {
@@ -74,13 +140,17 @@ fn main() {
 
     loop {
         let command = get_cmd();
-        match command {
-            Command::Add(title) => cmd_add(&mut books, title),
-            Command::Year(title, year) => cmd_year(&mut books, title, year),
-            Command::Rem(title) => cmd_rem(&mut books, title),
-            Command::Show => cmd_show(&books),
-            Command::Help => cmd_help(),
-            Command::Quit => break,
+        let res = match command {
+            Ok(Command::Add(title)) => cmd_add(&mut books, title),
+            Ok(Command::Year(title, year)) => cmd_year(&mut books, title, year),
+            Ok(Command::Rem(title)) => cmd_rem(&mut books, title),
+            Ok(Command::Show) => cmd_show(&books),
+            Ok(Command::Help) => cmd_help(),
+            Ok(Command::Quit) => break,
+            Err(e) => Err(e),
+        };
+        if let Err(e) = res {
+            println!("Error: {:?}", e);
         }
     }
 }
